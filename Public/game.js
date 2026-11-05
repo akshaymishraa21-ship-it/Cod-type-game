@@ -44,9 +44,14 @@ function init() {
     const hud = document.getElementById('hud');
     const touchControlsUI = document.getElementById('touch-controls');
 
+    // Safe launch handler
     playBtn.addEventListener('click', () => {
-        if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
+        try {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+        } catch (e) {
+            // Ignore fullscreen security errors on strict mobile browsers
         }
 
         gameStarted = true;
@@ -119,7 +124,7 @@ function init() {
         spawnTarget();
     }
 
-    renderer = new THREE.WebGLRenderer({ antialias: false }); // antialias: false boosts mobile performance speed
+    renderer = new THREE.WebGLRenderer({ antialias: false });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
