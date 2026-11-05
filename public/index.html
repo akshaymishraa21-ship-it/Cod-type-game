@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Web FPS</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Import Maps for Three.js -->
     <script type="importmap">
         {
             "imports": {
@@ -17,10 +16,19 @@
 </head>
 <body>
     <div id="crosshair">+</div>
+    
+    <!-- Virtual Touch Controls for Mobile/Tablets -->
+    <div id="touch-controls">
+        <div id="joystick-zone">
+            <div id="joystick-knob"></div>
+        </div>
+        <button id="shoot-btn">FIRE</button>
+    </div>
+
     <div id="blocker">
         <div id="instructions">
-            <p style="font-size:36px; margin-bottom: 10px; font-weight: bold; color: #00ffff;">PLAY</p>
-            <p>WASD to Move | Mouse to Look | Click to Shoot</p>
+            <p style="font-size:32px; margin-bottom: 10px; font-weight: bold; color: #00ffff;">PLAY</p>
+            <p>PC: WASD + Mouse | Mobile: Use Joystick & Fire Button</p>
         </div>
     </div>
     <script type="module" src="game.js"></script>
