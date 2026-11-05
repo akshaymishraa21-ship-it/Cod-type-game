@@ -16,32 +16,12 @@ let gameStarted = false;
 let score = 0;
 let ammo = 30;
 
-// Simulate App Loading Sequence
-window.addEventListener('DOMContentLoaded', () => {
-    let progress = 0;
-    const bar = document.getElementById('loading-bar');
-    const text = document.getElementById('loading-text');
-    const playBtn = document.getElementById('play-btn');
-
-    const interval = setInterval(() => {
-        progress += Math.floor(Math.random() * 15) + 10;
-        if (progress >= 100) {
-            progress = 100;
-            clearInterval(interval);
-            text.style.display = 'none';
-            document.getElementById('loading-container').style.display = 'none';
-            playBtn.style.display = 'block';
-        }
-        bar.style.width = progress + '%';
-    }, 250);
-});
-
 init();
 animate();
 
 function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0b131f); // Dark tactical twilight sky
+    scene.background = new THREE.Color(0x0b131f);
     scene.fog = new THREE.FogExp2(0x0b131f, 0.02);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
@@ -59,14 +39,12 @@ function init() {
 
     isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-    // Launch Game & Full Screen on Play Button Tap
     const playBtn = document.getElementById('play-btn');
     const blocker = document.getElementById('blocker');
     const hud = document.getElementById('hud');
     const touchControlsUI = document.getElementById('touch-controls');
 
     playBtn.addEventListener('click', () => {
-        // Request full screen for real app experience
         if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen().catch(() => {});
         }
@@ -82,7 +60,6 @@ function init() {
         }
     });
 
-    // Keyboard Listeners (PC)
     window.addEventListener('keydown', (e) => {
         if (!gameStarted) return;
         if (e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = true;
@@ -97,18 +74,16 @@ function init() {
         if (e.code === 'KeyD' || e.code === 'ArrowRight') moveRight = false;
     });
 
-    // Shooting Action
     const triggerShoot = () => {
         if (!gameStarted || ammo <= 0) return;
         ammo--;
         document.getElementById('ammo').innerText = ammo;
 
-        // Auto reload simulation
         if (ammo <= 0) {
             setTimeout(() => {
                 ammo = 30;
                 document.getElementById('ammo').innerText = ammo;
-            }, 1200);
+            }, 1000);
         }
 
         raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
@@ -134,20 +109,18 @@ function init() {
 
     setupTouchControls(triggerShoot);
 
-    // Tactical Ground Arena
-    const floorGeometry = new THREE.PlaneGeometry(250, 250, 30, 30);
+    const floorGeometry = new THREE.PlaneGeometry(250, 250, 20, 20);
     const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x1a212d, roughness: 0.9 });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
     scene.add(floor);
 
-    // Spawn Enemies
     for (let i = 0; i < 10; i++) {
         spawnTarget();
     }
 
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer = new THREE.WebGLRenderer({ antialias: false }); // antialias: false boosts mobile performance speed
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     window.addEventListener('resize', onWindowResize);
@@ -156,25 +129,21 @@ function init() {
 function spawnTarget() {
     const person = new THREE.Group();
 
-    // Body
     const bodyMat = new THREE.MeshStandardMaterial({ color: 0x223344 });
     const body = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.7, 0.5), bodyMat);
     body.position.y = 1.8;
     person.add(body);
 
-    // Head
     const headMat = new THREE.MeshStandardMaterial({ color: 0xffdbac });
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), headMat);
     head.position.y = 2.9;
     person.add(head);
 
-    // Tactical Helmet
     const helmetMat = new THREE.MeshStandardMaterial({ color: 0x334422 });
     const helmet = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.35, 0.68), helmetMat);
     helmet.position.y = 3.15;
     person.add(helmet);
 
-    // Legs
     const legMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
     const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.4, 0.35), legMat);
     leftLeg.position.set(-0.25, 0.7, 0);
