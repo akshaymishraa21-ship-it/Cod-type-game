@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Web FPS</title>
+    <title>Tactical Strike - Akshay</title>
     <link rel="stylesheet" href="style.css">
     <script type="importmap">
         {
@@ -15,9 +15,16 @@
     </script>
 </head>
 <body>
-    <div id="crosshair">+</div>
+    <!-- Game HUD -->
+    <div id="hud">
+        <div id="crosshair">+</div>
+        <div id="stats">
+            <div>SCORE: <span id="score">0</span></div>
+            <div>AMMO: <span id="ammo">30</span>/30</div>
+        </div>
+    </div>
     
-    <!-- Mobile Touch Controls -->
+    <!-- Mobile On-Screen Controls -->
     <div id="touch-controls">
         <div id="joystick-zone">
             <div id="joystick-knob"></div>
@@ -25,12 +32,18 @@
         <button id="shoot-btn">FIRE</button>
     </div>
 
-    <!-- Start Menu with Play Button & Your Name -->
+    <!-- App Loading & Start Screen -->
     <div id="blocker">
-        <div id="menu-container">
+        <div id="menu-box">
             <h1>TACTICAL STRIKE</h1>
-            <p id="creator-credit">Made by Akshay</p>
-            <button id="play-btn">PLAY GAME</button>
+            <p class="subtitle">Designed by Akshay</p>
+            
+            <div id="loading-container">
+                <div id="loading-bar"></div>
+            </div>
+            <p id="loading-text">Loading Assets...</p>
+
+            <button id="play-btn" style="display: none;">TAP TO PLAY</button>
         </div>
     </div>
 
