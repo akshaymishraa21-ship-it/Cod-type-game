@@ -13,42 +13,67 @@ let touchMoveDir = { x: 0, y: 0 };
 let lookTouchId = null;
 let touchLookPrev = { x: 0, y: 0 };
 let gameStarted = false;
+let score = 0;
+let ammo = 30;
+
+// Simulate App Loading Sequence
+window.addEventListener('DOMContentLoaded', () => {
+    let progress = 0;
+    const bar = document.getElementById('loading-bar');
+    const text = document.getElementById('loading-text');
+    const playBtn = document.getElementById('play-btn');
+
+    const interval = setInterval(() => {
+        progress += Math.floor(Math.random() * 15) + 10;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+            text.style.display = 'none';
+            document.getElementById('loading-container').style.display = 'none';
+            playBtn.style.display = 'block';
+        }
+        bar.style.width = progress + '%';
+    }, 250);
+});
 
 init();
 animate();
 
 function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb);
-    scene.fog = new THREE.FogExp2(0x87ceeb, 0.015);
+    scene.background = new THREE.Color(0x0b131f); // Dark tactical twilight sky
+    scene.fog = new THREE.FogExp2(0x0b131f, 0.02);
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
     camera.position.y = 2;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfffaed, 1.2);
-    sunLight.position.set(50, 100, 50);
-    scene.add(sunLight);
-
-    createSunAndClouds();
+    const dirLight = new THREE.DirectionalLight(0xfffaed, 1.0);
+    dirLight.position.set(40, 80, 40);
+    scene.add(dirLight);
 
     controls = new PointerLockControls(camera, document.body);
     scene.add(controls.getObject());
 
     isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-    // Play Button Listener
+    // Launch Game & Full Screen on Play Button Tap
     const playBtn = document.getElementById('play-btn');
     const blocker = document.getElementById('blocker');
-    const crosshair = document.getElementById('crosshair');
+    const hud = document.getElementById('hud');
     const touchControlsUI = document.getElementById('touch-controls');
 
     playBtn.addEventListener('click', () => {
+        // Request full screen for real app experience
+        if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }
+
         gameStarted = true;
         blocker.style.display = 'none';
-        crosshair.style.display = 'block';
+        hud.style.display = 'block';
 
         if (!isTouchDevice) {
             controls.lock();
@@ -74,7 +99,18 @@ function init() {
 
     // Shooting Action
     const triggerShoot = () => {
-        if (!gameStarted) return;
+        if (!gameStarted || ammo <= 0) return;
+        ammo--;
+        document.getElementById('ammo').innerText = ammo;
+
+        // Auto reload simulation
+        if (ammo <= 0) {
+            setTimeout(() => {
+                ammo = 30;
+                document.getElementById('ammo').innerText = ammo;
+            }, 1200);
+        }
+
         raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
         const intersects = raycaster.intersectObjects(enemies, true);
         if (intersects.length > 0) {
@@ -84,7 +120,10 @@ function init() {
             }
             scene.remove(hitRoot);
             enemies.splice(enemies.indexOf(hitRoot), 1);
-            spawnTarget(); // Respawn new walking person
+            
+            score += 100;
+            document.getElementById('score').innerText = score;
+            spawnTarget();
         }
     };
 
@@ -95,14 +134,14 @@ function init() {
 
     setupTouchControls(triggerShoot);
 
-    // Ground Map
-    const floorGeometry = new THREE.PlaneGeometry(300, 300, 50, 50);
-    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x3b7a57, roughness: 0.8, metalness: 0.1 });
+    // Tactical Ground Arena
+    const floorGeometry = new THREE.PlaneGeometry(250, 250, 30, 30);
+    const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x1a212d, roughness: 0.9 });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2;
     scene.add(floor);
 
-    // Spawn Walking People
+    // Spawn Enemies
     for (let i = 0; i < 10; i++) {
         spawnTarget();
     }
@@ -117,41 +156,39 @@ function init() {
 function spawnTarget() {
     const person = new THREE.Group();
 
-    // Torso (Jacket)
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x112233 });
-    const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.8, 0.6), bodyMat);
-    body.position.y = 1.9;
+    // Body
+    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x223344 });
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.7, 0.5), bodyMat);
+    body.position.y = 1.8;
     person.add(body);
 
-    // Head with Face Details
-    const headMat = new THREE.MeshStandardMaterial({ color: 0xffcc99 });
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), headMat);
-    head.position.y = 3.1;
+    // Head
+    const headMat = new THREE.MeshStandardMaterial({ color: 0xffdbac });
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), headMat);
+    head.position.y = 2.9;
     person.add(head);
 
-    // Eyes / Glasses accent
-    const glassMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
-    const glasses = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.15, 0.2), glassMat);
-    glasses.position.set(0, 3.15, 0.36);
-    person.add(glasses);
+    // Tactical Helmet
+    const helmetMat = new THREE.MeshStandardMaterial({ color: 0x334422 });
+    const helmet = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.35, 0.68), helmetMat);
+    helmet.position.y = 3.15;
+    person.add(helmet);
 
     // Legs
-    const legMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-    const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.5, 0.4), legMat);
-    leftLeg.position.set(-0.3, 0.75, 0);
+    const legMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+    const leftLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.4, 0.35), legMat);
+    leftLeg.position.set(-0.25, 0.7, 0);
     person.add(leftLeg);
 
-    const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.5, 0.4), legMat);
-    rightLeg.position.set(0.3, 0.75, 0);
+    const rightLeg = new THREE.Mesh(new THREE.BoxGeometry(0.35, 1.4, 0.35), legMat);
+    rightLeg.position.set(0.25, 0.7, 0);
     person.add(rightLeg);
 
-    // Random initial position
-    person.position.x = Math.floor(Math.random() * 60 - 30);
-    person.position.z = Math.floor(Math.random() * 60 - 30);
+    person.position.x = Math.floor(Math.random() * 50 - 25);
+    person.position.z = Math.floor(Math.random() * 50 - 25);
     
-    // Custom movement properties for walking AI
     person.userData = {
-        walkSpeed: 2 + Math.random() * 2,
+        walkSpeed: 1.5 + Math.random() * 2,
         direction: new THREE.Vector3((Math.random() - 0.5), 0, (Math.random() - 0.5)).normalize(),
         changeTimer: 0
     };
@@ -248,4 +285,55 @@ function setupTouchControls(shootCallback) {
         }
     };
     window.addEventListener('touchend', endLook);
-    window.addEventListener('touch
+    window.addEventListener('touchcancel', endLook);
+}
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+function animate() {
+    requestAnimationFrame(animate);
+    const time = performance.now();
+    const delta = (time - prevTime) / 1000;
+
+    if (gameStarted) {
+        enemies.forEach((enemy) => {
+            enemy.position.addScaledVector(enemy.userData.direction, enemy.userData.walkSpeed * delta);
+            
+            enemy.userData.changeTimer += delta;
+            if (enemy.userData.changeTimer > 3.5 || Math.abs(enemy.position.x) > 35 || Math.abs(enemy.position.z) > 35) {
+                enemy.userData.direction.set((Math.random() - 0.5), 0, (Math.random() - 0.5)).normalize();
+                enemy.userData.changeTimer = 0;
+            }
+        });
+
+        if (!isTouchDevice && controls.isLocked === true) {
+            velocity.x -= velocity.x * 10.0 * delta;
+            velocity.z -= velocity.z * 10.0 * delta;
+
+            direction.z = Number(moveForward) - Number(moveBackward);
+            direction.x = Number(moveRight) - Number(moveLeft);
+            direction.normalize();
+
+            if (moveForward || moveBackward) velocity.z -= direction.z * 400.0 * delta;
+            if (moveLeft || moveRight) velocity.x -= direction.x * 400.0 * delta;
+
+            controls.moveRight(-velocity.x * delta);
+            controls.moveForward(-velocity.z * delta);
+        } else if (isTouchDevice) {
+            const moveSpeed = 12.0;
+            controls.moveForward(-touchMoveDeriv(touchMoveDir.y) * moveSpeed * delta);
+            controls.moveRight(touchMoveDeriv(touchMoveDir.x) * moveSpeed * delta);
+        }
+    }
+
+    prevTime = time;
+    renderer.render(scene, camera);
+}
+
+function touchMoveDeriv(val) {
+    return Math.abs(val) > 0.1 ? val : 0;
+}
