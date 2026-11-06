@@ -1,3 +1,4 @@
+* { box-sizing: border-box; }
 body {
     margin: 0;
     overflow: hidden;
@@ -43,7 +44,6 @@ body {
     letter-spacing: 1px;
 }
 
-/* Mobile Controls */
 #touch-controls {
     position: absolute;
     width: 100%;
@@ -96,10 +96,8 @@ body {
 
 #shoot-btn:active {
     transform: scale(0.92);
-    background: rgba(180, 10, 40, 1);
 }
 
-/* Loading & Start Menu Overlay */
 #blocker {
     position: absolute;
     width: 100%;
@@ -118,16 +116,15 @@ body {
     background: rgba(15, 20, 30, 0.85);
     border: 1px solid rgba(0, 255, 255, 0.3);
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 255, 255, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
     max-width: 350px;
     width: 80%;
 }
 
 #menu-box h1 {
-    font-size: 28px;
+    font-size: 26px;
     margin: 0 0 5px 0;
     letter-spacing: 2px;
-    color: #ffffff;
 }
 
 .subtitle {
@@ -135,29 +132,6 @@ body {
     color: #00ffff;
     margin-bottom: 25px;
     font-weight: 600;
-    letter-spacing: 1px;
-}
-
-#loading-container {
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-
-#loading-bar {
-    width: 0%;
-    height: 100%;
-    background: #00ffff;
-    transition: width 0.2s ease;
-}
-
-#loading-text {
-    font-size: 12px;
-    color: #8892b0;
-    margin-bottom: 20px;
 }
 
 #play-btn {
@@ -169,11 +143,5 @@ body {
     font-weight: bold;
     border-radius: 8px;
     cursor: pointer;
-    letter-spacing: 1px;
-    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
     width: 100%;
-}
-
-#play-btn:active {
-    transform: scale(0.97);
 }
