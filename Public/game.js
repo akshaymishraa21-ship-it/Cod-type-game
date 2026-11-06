@@ -24,10 +24,10 @@ function init() {
     scene.background = new THREE.Color(0x0b131f);
     scene.fog = new THREE.FogExp2(0x0b131f, 0.02);
 
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-    camera.position.y = 2;
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 2, 0);
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
     const dirLight = new THREE.DirectionalLight(0xfffaed, 1.0);
@@ -44,15 +44,12 @@ function init() {
     const hud = document.getElementById('hud');
     const touchControlsUI = document.getElementById('touch-controls');
 
-    // Safe launch handler
     playBtn.addEventListener('click', () => {
         try {
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(() => {});
             }
-        } catch (e) {
-            // Ignore fullscreen security errors on strict mobile browsers
-        }
+        } catch (e) {}
 
         gameStarted = true;
         blocker.style.display = 'none';
@@ -65,6 +62,7 @@ function init() {
         }
     });
 
+    // Keyboard bindings for Laptop/PC
     window.addEventListener('keydown', (e) => {
         if (!gameStarted) return;
         if (e.code === 'KeyW' || e.code === 'ArrowUp') moveForward = true;
@@ -109,11 +107,18 @@ function init() {
 
     raycaster = new THREE.Raycaster();
     window.addEventListener('mousedown', () => {
-        if (!isTouchDevice && gameStarted && controls.isLocked) triggerShoot();
+        if (!isTouchDevice && gameStarted) {
+            if (!controls.isLocked) {
+                controls.lock();
+            } else {
+                triggerShoot();
+            }
+        }
     });
 
     setupTouchControls(triggerShoot);
 
+    // Floor Arena
     const floorGeometry = new THREE.PlaneGeometry(250, 250, 20, 20);
     const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x1a212d, roughness: 0.9 });
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
